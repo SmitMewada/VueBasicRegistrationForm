@@ -121,9 +121,9 @@ export default {
           value: true,
         },
         {
-            label: "No",
-            value: false
-        }
+          label: "No",
+          value: false,
+        },
       ],
     };
   },
@@ -145,7 +145,6 @@ export default {
         this.country = student.country;
         this.radioValue = student.isPublished;
         this.isPublished = student.isPublished;
-        
       } else {
         alert("Student not found!");
         this.id = "";
@@ -156,32 +155,125 @@ export default {
   methods: {
     onSubmit(e) {
       e.preventDefault();
+
+      let errors = this.$store.state.errors;
+      const requiredError = "Field is required!";
+      const lenError = "Phone must be 10 digits";
+
+      this.name.length === 0
+        ? errors.nameErrors.push(requiredError)
+        : errors.nameErrors.splice(0);
+      errors.nameErrors = [...new Set(errors.nameErrors)];
+
+      this.email.length === 0
+        ? errors.emailErrors.push(requiredError)
+        : errors.emailErrors.splice(0);
+      errors.emailErrors = [...new Set(errors.emailErrors)];
+
+      this.phone.length === 0
+        ? errors.phoneErrors.push(requiredError)
+        : errors.phoneErrors.splice(0);
+
+      this.phone.length !== 10
+        ? errors.phoneErrors.push(lenError)
+        : errors.phoneErrors.splice(1);
+      errors.phoneErrors = [...new Set(errors.phoneErrors)];
+
+      this.college.length === 0
+        ? errors.collegeErrors.push(requiredError)
+        : errors.collegeErrors.splice(0);
+      errors.collegeErrors = [...new Set(errors.collegeErrors)];
+
+      this.course.length === 0
+        ? errors.courseErrors.push(requiredError)
+        : errors.courseErrors.splice(0);
+      errors.courseErrors = [...new Set(errors.courseErrors)];
+
+      this.joiningDate.length === 0
+        ? errors.dateErrors.push(requiredError)
+        : errors.dateErrors.splice(0);
+      errors.dateErrors = [...new Set(errors.dateErrors)];
+
+      this.validateDate(errors.dateErrors);
+
+      this.isValid = this.isValidSubmitBtn();
+
+      if (this.isValid) {
+        if (this.id) {
+          let students = this.fetchStudents();
+          let student = students.find((student) => student.id === this.id);
+
+          if (student) {
+            student.name = this.name;
+            student.email = this.email;
+            student.phone = this.phone;
+            student.course = this.course;
+            student.college = this.college;
+            student.date = this.joiningDate;
+            student.isPublished = this.isPublished === "true";
+            student.country = this.country;
+
+            students = students.filter((student) => student.id !== this.id);
+            students.push(student);
+
+            this.saveStudents(students);
+
+            alert("Form updated successfully!");
+            this.$router.push("/students-view");
+          }
+        } else {
+          const student = {
+            id: Math.floor(Math.random() * 1000),
+            name: this.name,
+            email: this.email,
+            phone: this.phone,
+            course: this.course,
+            college: this.college,
+            date: this.joiningDate,
+            isPublished: this.isPublished === "true",
+            country: this.country,
+          };
+
+          let students = this.fetchStudents();
+          students.push(student);
+          this.saveStudents(students);
+
+          alert("Student added Sucessfully!");
+
+          this.$router.push({ name: "students-view" });
+        }
+      }
     },
     validateControl(event, value, error) {
-      const errorName = "It is required!";
-      const phoneLenError = "Phone must be 10 digits!";
+      const errorName = "Field is required!";
+      const phoneLenError = "Phone must be 10 digits";
 
-      value.length === 0
-        ? !error.includes(errorName) && error.push(errorName)
-        : error.pop(errorName);
+      if (value.length === 0) {
+        if (!error.includes(errorName)) error.push(errorName);
+      } else error.splice(0);
 
       if (event.target.name == "phone") {
-        value.length !== 10
-          ? !error.includes(phoneLenError) && error.push(phoneLenError)
-          : error.pop(phoneLenError);
+        if (value.length !== 10) {
+          if (!error.includes(phoneLenError)) error.push(phoneLenError);
+        } else error.splice(1);
       }
 
       this.isValid = this.isValidSubmitBtn();
     },
     validateDate(error) {
       const futureDateError = "It can't be a future date!";
+      const reqError = "Field is required!";
       const date = new Date(this.joiningDate);
       const isValidDate =
         new Date(date.toDateString()) < new Date(new Date().toDateString());
 
-      !isValidDate
-        ? !error.includes(futureDateError) && error.push(futureDateError)
-        : error.pop(futureDateError);
+      if (this.joiningDate.length === 0) {
+        if (!error.includes(reqError)) error.push(reqError);
+      } else error.splice(0);
+
+      if (!isValidDate) {
+        if (!error.includes(futureDateError)) error.push(futureDateError);
+      } else error.splice(1);
 
       this.isValid = this.isValidSubmitBtn();
     },
@@ -197,6 +289,9 @@ export default {
     },
     fetchStudents() {
       return JSON.parse(localStorage.getItem("students"));
+    },
+    saveStudents(students) {
+      localStorage.setItem("students", JSON.stringify(students));
     },
   },
 };

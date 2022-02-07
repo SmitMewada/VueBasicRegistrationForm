@@ -1,8 +1,15 @@
 <template>
   <div class="control">
     <label for="">{{ label }}</label>
-    <select name="" id="" @input="$emit('update:modelValue', $event.target.value)" :value="value">
-      <option :value="option" v-for="(option, index) in options" :key="index" >{{option}}</option>
+    <select
+      name=""
+      id=""
+      @input="$emit('update:modelValue', $event.target.value)"
+      :value="value"
+    >
+      <option :value="option" v-for="(option, index) in options" :key="index">
+        {{ option }}
+      </option>
     </select>
   </div>
 </template>
@@ -13,7 +20,8 @@ export default {
   props: {
     label: String,
     options: Array,
-    value: String
+    value: String,
+    errors: Array,
   },
 };
 </script>

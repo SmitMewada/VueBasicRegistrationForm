@@ -12,6 +12,7 @@ export default createStore({
       collegeErrors: [],
       phoneErrors: [],
       dateErrors: [],
+      countryErrors: [],
     },
     student: {
       name: "",
@@ -25,8 +26,7 @@ export default createStore({
     },
   },
   mutations: {},
-  actions: {
-  },
+  actions: {},
   modules: {
     Button,
     Students,

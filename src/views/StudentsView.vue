@@ -12,7 +12,6 @@
 
     <table>
       <thead>
-        <th>id</th>
         <th>Name</th>
         <th>E-mail</th>
         <th>Phone</th>
@@ -25,7 +24,6 @@
       </thead>
       <tbody>
         <tr v-for="(student, index) in dummyStudents" :key="index">
-          <td>{{ student.id }}</td>
           <td>{{ student.name }}</td>
           <td>{{ student.email }}</td>
           <td>{{ student.phone }}</td>
@@ -36,11 +34,11 @@
           <td>{{ student.date }}</td>
           <td>
             <div class="actions">
-              <router-link :to='"/"+student.id'>
+              <router-link :to="'/' + student.id">
                 <i class="fas fa-edit"></i>
               </router-link>
 
-              <i class="fas fa-trash"></i>
+              <i class="fas fa-trash" @click="deleteHandler(student.id)"></i>
             </div>
           </td>
         </tr>
@@ -68,6 +66,16 @@ export default {
       this.dummyStudents = this.students.filter((student) =>
         student.name.startsWith(this.searchValue)
       );
+    },
+    deleteHandler(id) {
+      const flag = confirm("Are you sure?");
+
+      if (flag) {
+        let students = JSON.parse(localStorage.getItem("students"));
+        students = students.filter((item) => item.id !== id);
+        localStorage.setItem("students", JSON.stringify(students));
+        this.$router.go();
+      }
     },
   },
 };
